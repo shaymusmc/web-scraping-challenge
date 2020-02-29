@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup as bs
 from splinter import Browser
 import pandas as pd
 import requests
-
+import time
 
 def init_browser():
 # Mac Users
@@ -30,7 +30,7 @@ def scrape():
 	# URL of page to be scraped
 	url = 'https://mars.nasa.gov/news/'
 	browser.visit(url)
-
+	time.sleep(3)
 	# Create BeautifulSoup object; parse with 'html.parser'
 	html = browser.html
 	soup = bs(html, 'html.parser')
@@ -39,7 +39,7 @@ def scrape():
 	title = soup.find('div', class_='content_title').find('a').text
 
 	# scrape the article teaser paragraph
-	first_pp = soup.find('div', class_='article_teaser_body').text
+	first_pp = soup.find('div', class_='article_teaser_body').get_text()
 
 
 	browser.quit()
@@ -53,11 +53,11 @@ def scrape():
 	# Visit the url for JPL Featured Space Image here. https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars
 	image_url = 'https://www.jpl.nasa.gov/spaceimages/?search=&category=Mars'
 	browser.visit(image_url)
-
+	time.sleep(3)
 	# Use splinter to navigate the site and find the image url for the current Featured Mars Image 
 	# Make sure to find the image url to the full size .jpg image.
 	browser.click_link_by_partial_text('FULL IMAGE')
-
+	time.sleep(3)
 	image_html = browser.html
 	image_soup = bs(image_html, 'html.parser')
 	find_image_url = image_soup.find('img', class_='fancybox-image')['src']
@@ -75,7 +75,7 @@ def scrape():
 	# Visit the Mars Weather twitter account and scrape the latest Mars weather tweet from the page. 
 	weather_url = 'https://twitter.com/marswxreport?lang=en'
 	browser.visit(weather_url)
-
+	time.sleep(3)
 	# Save the tweet text for the weather report as a variable called mars_weather
 	weather_html = browser.html
 	weather_soup = bs(weather_html, 'html.parser')
@@ -102,7 +102,7 @@ def scrape():
 	# Diameter, Mass, etc.
 	facts_url = 'https://space-facts.com/mars/'
 	browser.visit(facts_url)
-
+	time.sleep(3)
 	# Use Pandas to convert the data to a HTML table string
 	mars_read = pd.read_html(facts_url)
 	mars_facts = pd.DataFrame(mars_read[0])
@@ -120,7 +120,7 @@ def scrape():
 
 	hemi_url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
 	browser.visit(hemi_url)
-
+	time.sleep(3)
 	# You will need to click each of the links to the hemispheres in order to find the image url to the full resolution image.
 	# Save both the image url string for the full resolution hemisphere image, and the Hemisphere title
 	# create empty list for the hemispheres
@@ -133,12 +133,13 @@ def scrape():
 	    hemi_dict = {}
 	    
 	    browser.find_by_css('a.product-item h3')[i].click()
+	    time.sleep(1)
 	    hemi_url = browser.find_link_by_text('Sample').first
 	    # Store the data using the keys img_url and title
-	    hemi_dict['title'] = browser.find_by_css('h2.title').text.strip(' Enhanced')
 	    hemi_dict['img_url'] = hemi_url['href']
+	    hemi_dict['title'] = browser.find_by_css('h2.title').text.strip(' Enhanced')
 	    mars_hemi.append(hemi_dict)
-	    
+
 	    browser.back()
 
 	browser.quit()
@@ -146,8 +147,8 @@ def scrape():
     # Save scraped data into dictionary
 	mars_data = {"title":title,
 				"first_pp":first_pp,
-				"featured_image":featured_image_url,
-				"mars_weather":mars_weather,
+				"featured_image_url":featured_image_url,
+				"weather":weather,
 				"mars_html":mars_html,
 				"mars_hemi":mars_hemi
 	            }
