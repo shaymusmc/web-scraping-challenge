@@ -137,7 +137,7 @@ def scrape():
 	    hemi_url = browser.find_link_by_text('Sample').first
 	    # Store the data using the keys img_url and title
 	    hemi_dict['img_url'] = hemi_url['href']
-	    hemi_dict['title'] = browser.find_by_css('h2.title').text.strip(' Enhanced')
+	    hemi_dict['title'] = browser.find_by_css('h2.title').text.strip('Enhanced')
 	    mars_hemi.append(hemi_dict)
 
 	    browser.back()
